@@ -162,23 +162,27 @@
     }
 
     function connect() {
-        // Ensure your backend endpoint matches this
-        let socket = new SockJS('/chat');
+        // Render ke dynamic URL ko handle karne ke liye absolute URL ka use karein
+        let serverUrl = window.location.origin + '/chat';
+        let socket = new SockJS(serverUrl);
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, function () {
+        // Connection me error handling
+        stompClient.connect({}, function (frame) {
             setConnected(true);
+            console.log('Connected: ' + frame);
 
             stompClient.subscribe('/topic/messages', function (message) {
                 showMessage(JSON.parse(message.body));
             });
+        }, function (error) {
+            console.error("Connection error: ", error);
         });
     }
 
     function showMessage(message) {
         let chat = document.getElementById('chat');
 
-        // Creating a 3D bubble layout for messages
         let rowElement = document.createElement('div');
         rowElement.className = "message-row";
 
